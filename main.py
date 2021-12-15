@@ -5,31 +5,11 @@ import time
 import os
 import numpy as np
 import torch.optim as optim
-from utils.funcs import load_data, load_all_adj, StandardScaler
-from utils.funcs import masked_mae_loss, masked_mape_loss, masked_mse_loss, masked_loss
-from utils.funcs import get_normalized_adj, get_avg_std
+from utils.funcs import load_data, load_all_adj
+from utils.funcs import masked_loss
+from utils.funcs import get_avg_std
 from utils.vec import generate_vector
-from models.ha import HA
-from models.svr import SVR
-from models.gcn import GCN
-from models.gru import GRU
-from models.ntv import NTV
-from models.mlp import MLP
-from models.attn import ATTN_MLP
-from models.tgcn import TGCN
-from models.vgru_modify import VGRU
-from models.dcrnn import DCRNNModel
-from models.stgcn import STGCN
-from models.vgru_combine import VGRU_C
-from models.adj import VGRU_ADJ
-from models.adj_padding import VGRU_ADJ_PAD
-from models.mygin import VGRU_GIN
-from models.mygin_pad import VGRU_GIN_PAD
-from models.speed_predictor import VGRU_FEAT
-from models.merge_flow import Merge_model, Domain_classifier_DG
-from models.feature_extractor import Extractor_MLP, Extractor_GIN, Extractor, Extractor_test, Extractor_N2V
-from emb.struc2vec import get_struc2vec
-
+from model import Merge_model, Domain_classifier_DG
 
 def arg_parse(parser):
     parser.add_argument('--proc', type=str, default='tyh_process', help='process title')
@@ -85,14 +65,6 @@ def arg_parse(parser):
     parser.add_argument('--etype', type=str, default="gin", choices=["gin"], help='feature type')
     parser.add_argument('--ctype', type=str, default="DG", choices=["DG", "RG"], help='gradient type')
     return parser.parse_args()
-
-def choose_model(model_name, adj, vec1, vec2):
-    if model_name == "VGRU_FEAT":
-        model = VGRU_FEAT(hidden_dim=args.hidden_dim, output_dim=args.pre_len, encode_dim=args.enc_dim)
-    else:
-        raise NameError("Such model not supported:", model_name)
-
-    return model
 
 
 def train(dur, model, optimizer, total_step, start_step, train_acc):
@@ -464,7 +436,7 @@ if args.transfer:
                 dataset_count = dataset_count + 1
 
                 print(f'\n\n****************************************************************************************************************')
-                print(f'flow_model4, dataset: {dataset}, model: {args.model}, pre_len: {args.pre_len}, labelrate: {args.labelrate}')
+                print(f'dataset: {dataset}, model: {args.model}, pre_len: {args.pre_len}, labelrate: {args.labelrate}')
                 print(f'****************************************************************************************************************\n\n')
 
                 if dataset == '4':
@@ -509,7 +481,7 @@ if args.transfer:
         # args.val = args.test = False
 
         print(f'\n\n*******************************************************************************************')
-        print(f'flow_model4, dataset: {args.dataset}, model: {args.model}, pre_len: {args.pre_len}, labelrate: {args.labelrate}, seed: {args.division_seed}')
+        print(f'dataset: {args.dataset}, model: {args.model}, pre_len: {args.pre_len}, labelrate: {args.labelrate}, seed: {args.division_seed}')
         print(f'*******************************************************************************************\n\n')
 
         if args.dataset == '4':
@@ -556,10 +528,3 @@ if args.transfer:
     avg_mape, std_mape = get_avg_std(result_mape)
 
     print(f'Final mae: {avg_mae: .2f}±{std_mae: .2f}, rmse: {avg_rmse: .2f}±{std_rmse: .2f}, mape: {avg_mape: .2f}±{std_mape: .2f}')
-
-
-
-    # if args.save:
-    #     fo = open("./../result/flow_model4.txt", "a")
-    #     fo.write(f'flow_model4, {args.dataset}, {args.model}, {args.pre_len}, {args.labelrate}% | {avg_mae: .2f}±{std_mae: .2f}, {avg_rmse: .2f}±{std_rmse: .2f}, {avg_mape: .2f}±{std_mape: .2f}\n')
-    #     fo.close()
