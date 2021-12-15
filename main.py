@@ -304,53 +304,13 @@ if args.load:
     cur_dir = os.getcwd()
     if cur_dir[-2:] == 'sh':
         cur_dir = cur_dir[:-2]
-    la_emb_path = os.path.join('{}'.format(cur_dir), 'embeddings', 'node2vec', 'la',
-                               '{}_vecdim.pkl'.format(args.vec_dim))
-    bay_emb_path = os.path.join('{}'.format(cur_dir), 'embeddings', 'node2vec', 'bay',
-                                '{}_vecdim.pkl'.format(args.vec_dim))
-    loop_emb_path = os.path.join('{}'.format(cur_dir), 'embeddings', 'node2vec', 'loop',
-                                 '{}_vecdim.pkl'.format(args.vec_dim))
+
     pems04_emb_path = os.path.join('{}'.format(cur_dir), 'embeddings', 'node2vec', 'pems04',
                                '{}_vecdim.pkl'.format(args.vec_dim))
     pems07_emb_path = os.path.join('{}'.format(cur_dir), 'embeddings', 'node2vec', 'pems07',
                                 '{}_vecdim.pkl'.format(args.vec_dim))
     pems08_emb_path = os.path.join('{}'.format(cur_dir), 'embeddings', 'node2vec', 'pems08',
                                  '{}_vecdim.pkl'.format(args.vec_dim))
-
-    if os.path.exists(la_emb_path):
-        print(f'Loading la embedding...')
-        vec_la = torch.load(la_emb_path, map_location='cpu')
-        vec_la = vec_la.to(device)
-    else:
-        print(f'Generating la embedding...')
-        vec_la, _ = generate_vector(args)
-        vec_la = vec_la.to(device)
-        print(f'Saving la embedding...')
-        torch.save(vec_la.cpu(), la_emb_path)
-
-    if os.path.exists(bay_emb_path):
-        print(f'Loading bay embedding...')
-        vec_bay = torch.load(bay_emb_path, map_location='cpu')
-        vec_bay = vec_bay.to(device)
-    else:
-        print(f'Generating bay embedding...')
-        args.dataset = 'bay'
-        vec_bay, _ = generate_vector(args)
-        vec_bay = vec_bay.to(device)
-        print(f'Saving bay embedding...')
-        torch.save(vec_bay.cpu(), bay_emb_path)
-
-    if os.path.exists(loop_emb_path):
-        print(f'Loading loop embedding...')
-        vec_loop = torch.load(loop_emb_path, map_location='cpu')
-        vec_loop = vec_loop.to(device)
-    else:
-        print(f'Generating loop embedding...')
-        args.dataset = 'loop'
-        vec_loop, _ = generate_vector(args)
-        vec_loop = vec_loop.to(device)
-        print(f'Saving loop embedding...')
-        torch.save(vec_loop.cpu(), loop_emb_path)
 
     if os.path.exists(pems04_emb_path):
         print(f'Loading pems04 embedding...')
