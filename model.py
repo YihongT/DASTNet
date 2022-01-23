@@ -161,9 +161,6 @@ class Extractor_N2V(nn.Module):
         self._hidden_dim = hidden_dim
         self.adj_encoderlayer1 = nn.Linear(input_dim, hidden_dim)
         self.adj_encoderlayer2 = nn.Linear(hidden_dim, encode_dim)
-        self.adj_encoderlayer3 = nn.Linear(hidden_dim, encode_dim)
-        self.activate_1 = torch.nn.ReLU()
-        self.activate_2 = torch.nn.ReLU()
         self.batch_norm = nn.BatchNorm1d(encode_dim)
         self.eps1 = nn.Parameter(torch.tensor([1.0]))
 
