@@ -1,5 +1,3 @@
-import networkx as nx
-import numpy as np
 import random
 from gensim.models import Word2Vec
 
@@ -28,11 +26,9 @@ class Node2Vec:
             w = self.G.get_edge_data(v, x)["weight"]
             if w is None:
                 continue
-            # print(f'w: {w}, t: {t}, x: {x}')
             d = self.distance[t][x]
 
             if d == 0:
-                # weights[i] = w / self.p
                 weights[i] = 0
             elif d == 1:
                 weights[i] = w
@@ -56,7 +52,6 @@ class Node2Vec:
                         break
                     walk.append(v)
             walk = [str(x) for x in walk]
-            # print(f'walk: {walk}')
             walks.append(walk)
 
         return walks

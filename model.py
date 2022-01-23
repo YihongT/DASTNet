@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
-import torch.nn.init as init
 
 class GradReverse(torch.autograd.Function):
     """
@@ -79,21 +77,12 @@ class VGRULinear(nn.Module):
 
     def forward(self, inputs, hidden_state):
         batch_size, num_nodes = inputs.shape[0], inputs.shape[1]
-        # inputs (batch_size, num_nodes, 1)
         inputs = inputs.reshape((batch_size, num_nodes, 1))
-        # hidden_state (batch_size, num_nodes, num_gru_units)
-        hidden_state = hidden_state.reshape(
-            (batch_size, num_nodes, self._num_gru_units)
-        )
-        # [inputs, hidden_state] "[x, h]" (batch_size, num_nodes, num_gru_units + 1)
+        hidden_state = hidden_state.reshape((batch_size, num_nodes, self._num_gru_units))
         concatenation = torch.cat((inputs, hidden_state), dim=2)
-        # [x, h] (batch_size * num_nodes, gru_units + 1)
         concatenation = concatenation.reshape((-1, self._num_gru_units + 1))
-        # [x, h]W + b (batch_size * num_nodes, output_dim)
         outputs = concatenation @ self.weights + self.biases
-        # [x, h]W + b (batch_size, num_nodes, output_dim)
         outputs = outputs.reshape((batch_size, num_nodes, self._output_dim))
-        # [x, h]W + b (batch_size, num_nodes * output_dim)
         outputs = outputs.reshape((batch_size, num_nodes * self._output_dim))
         return outputs
 
@@ -124,30 +113,16 @@ class VGRUCell(nn.Module):
 
     def forward(self, inputs, hidden_state, feat):
         batch_size, num_nodes = inputs.shape[0], inputs.shape[1]
-        # [r, u] = sigmoid([x, h]W + b)
-        # [r, u] (batch_size, num_nodes * (2 * num_gru_units))
         concatenation = torch.sigmoid(self.linear1(inputs, hidden_state))
-        # r (batch_size, num_nodes * num_gru_units)
-        # u (batch_size, num_nodes * num_gru_units)
         r, u = torch.chunk(concatenation, chunks=2, dim=1)
-        # c = tanh([x, (r * h)]W + b)
-        # c (batch_size, num_nodes * num_gru_units)
         c = torch.tanh(self.linear2(inputs, r * hidden_state))
-        # h := u * h + (1 - u) * c
-        # h (batch_size, num_nodes * num_gru_units)
         new_hidden_state = u * hidden_state + (1 - u) * c
 
-        # (batch_size * num_nodes, hidden)
         new_hidden_state = new_hidden_state.reshape((batch_size * num_nodes, self._hidden_dim))
-        # (batch_size * num_nodes, hidden)
         feat = feat.reshape((batch_size * num_nodes, feat.shape[-1]))
-        # (batch_size * num_nodes, hidden)
         feat = feat @ self.weights + self.bias
-        # (batch_size * num_nodes, hidden*2)
         new_hidden_state = torch.cat((new_hidden_state, feat), 1)
-        # (batch_size * num_nodes, hidden)
         new_hidden_state = self.linear(new_hidden_state)
-        # (batch_size, num_nodes * hidden)
         new_hidden_state = new_hidden_state.reshape((batch_size, num_nodes * self._hidden_dim))
 
         return new_hidden_state, new_hidden_state
@@ -163,24 +138,14 @@ class VGRU_FEAT(nn.Module):
 
     def forward(self, inputs, feat):
         batch_size, seq_len, num_nodes = inputs.shape
-        # assert self._input_dim == num_nodes
         outputs = list()
-        hidden_state = torch.zeros(batch_size, num_nodes * self._hidden_dim).type_as(
-            inputs
-        )
-
+        hidden_state = torch.zeros(batch_size, num_nodes * self._hidden_dim).type_as(inputs)
         for i in range(seq_len):
             output, hidden_state = self.vgru_cell(inputs[:, i, :], hidden_state, feat)
             output = output.reshape((batch_size, num_nodes, self._hidden_dim))
             outputs.append(output)
-        # (batch_size, num_nodes, hidden_dim)
         last_output = outputs[-1]
-        # (batch_size * num_nodes, hidden_dim)
         last_output = last_output.reshape((-1, last_output.size(2)))
-        # (batch_size * num_nodes, output_dim)
-        # last_output = self.linear(last_output)
-        # # (batch_size, num_nodes, output_dim)
-        # last_output = last_output.reshape((batch_size, num_nodes, -1))
 
         return last_output
 
@@ -190,50 +155,36 @@ class Extractor_N2V(nn.Module):
         super(Extractor_N2V, self).__init__()
         self.device = device
         self.batch_size = batch_size
-
         self.etype = etype
-
-        self.activate_1 = torch.nn.ReLU()
-        self.activate_2 = torch.nn.ReLU()
-
         self._input_dim = input_dim
         self._encode_dim = encode_dim
         self._hidden_dim = hidden_dim
-
         self.adj_encoderlayer1 = nn.Linear(input_dim, hidden_dim)
         self.adj_encoderlayer2 = nn.Linear(hidden_dim, encode_dim)
-        self.adj_encoderlayer3 = nn.Linear(encode_dim, encode_dim)
-
+        self.adj_encoderlayer3 = nn.Linear(hidden_dim, encode_dim)
+        self.activate_1 = torch.nn.ReLU()
+        self.activate_2 = torch.nn.ReLU()
         self.batch_norm = nn.BatchNorm1d(encode_dim)
-        # self.dropout = nn.Dropout(p=0.1)
-
         self.eps1 = nn.Parameter(torch.tensor([1.0]))
 
     def forward(self, h, adj):
-        # (num_nodes, hidden_dim)
         h = self.adj_encoderlayer1(h.float())
-
         if self.etype == "gin":
-            # (num_nodes, hidden_dim)
             pooled = torch.spmm(adj.float(), h.float())
-            # (num_nodes, hidden_dim)
             degree = torch.spmm(adj.float(), torch.ones((adj.shape[0], 1)).float().to(self.device)).to(
                 self.device)
             pooled = pooled / degree
-            # (num_nodes, hidden_dim)
             h = pooled + self.eps1 * h
 
         h = self.batch_norm(h.float())
         h = self.adj_encoderlayer2(h.float())
 
-        # h = self.activate_1(h)
-
         return h
 
-class Merge_model(nn.Module):
+class DASTNet(nn.Module):
     def __init__(self, input_dim, hidden_dim, encode_dim, device, batch_size, etype, pre_len, dataset, ft_dataset,
-                 adj_pems04, adj_pems07, adj_pems08, dropout):
-        super(Merge_model, self).__init__()
+                 adj_pems04, adj_pems07, adj_pems08):
+        super(DASTNet, self).__init__()
         self.dataset = dataset
         self.finetune_dataset = ft_dataset
         self.pems04_adj = adj_pems04
@@ -285,23 +236,17 @@ class Merge_model(nn.Module):
             if self.dataset == '4':
                 h_pems04 = shared_pems04_feat.expand(self.batch_size, self.pems04_adj.shape[0], self.encode_dim)
                 pred = self.speed_predictor(feat, h_pems04)
-                # pred = self.dropout(pred)
                 pred = self.pems04_linear(pred)
-                # (batch_size, num_nodes, output_dim)
                 pred = pred.reshape((self.batch_size, self.pems04_adj.shape[0], -1))
             elif self.dataset == '7':
                 h_pems07 = shared_pems07_feat.expand(self.batch_size, self.pems07_adj.shape[0], self.encode_dim)
                 pred = self.speed_predictor(feat, h_pems07)
-                # pred = self.dropout(pred)
                 pred = self.pems07_linear(pred)
-                # (batch_size, num_nodes, output_dim)
                 pred = pred.reshape((self.batch_size, self.pems07_adj.shape[0], -1))
             elif self.dataset == '8':
                 h_pems08 = shared_pems08_feat.expand(self.batch_size, self.pems08_adj.shape[0], self.encode_dim)
                 pred = self.speed_predictor(feat, h_pems08)
-                # pred = self.dropout(pred)
                 pred = self.pems08_linear(pred)
-                # (batch_size, num_nodes, output_dim)
                 pred = pred.reshape((self.batch_size, self.pems08_adj.shape[0], -1))
 
             if not eval:
@@ -312,56 +257,26 @@ class Merge_model(nn.Module):
             if self.dataset == '4':
                 shared_pems04_feat = self.shared_pems04_featExtractor(vec_pems04, self.pems04_adj).to(self.device)
                 pems04_feat = self.pems04_featExtractor(vec_pems04, self.pems04_adj).to(self.device)
-                # pems04_feat = self.combine_pems04_linear(
-                #     self.private_pems04_linear(self.weight_feat_private * pems04_feat) + self.shared_pems04_linear(
-                #         self.weight_feat_shared * shared_pems04_feat))
-
-                # pems04_feat = self.combine_pems04_linear(self.weight_feat_private * pems04_feat + self.weight_feat_shared * shared_pems04_feat)
-
-                pems04_feat = self.combine_pems04_linear(
-                    self.private_pems04_linear(pems04_feat) + self.shared_pems04_linear(shared_pems04_feat))
-
-                # batch_norm = nn.BatchNorm1d(self.hidden_dim).to(self.device)
-                # pems04_feat = batch_norm(pems04_feat)
+                pems04_feat = self.combine_pems04_linear(self.private_pems04_linear(pems04_feat) + self.shared_pems04_linear(shared_pems04_feat))
                 h_pems04 = pems04_feat.expand(self.batch_size, self.pems04_adj.shape[0], self.encode_dim)
                 pred = self.speed_predictor(feat, h_pems04)
-                # pred = self.dropout(pred)
                 pred = self.pems04_linear(pred)
-                # (batch_size, num_nodes, output_dim)
                 pred = pred.reshape((self.batch_size, self.pems04_adj.shape[0], -1))
             elif self.dataset == '7':
                 shared_pems07_feat = self.shared_pems07_featExtractor(vec_pems07, self.pems07_adj).to(self.device)
                 pems07_feat = self.pems07_featExtractor(vec_pems07, self.pems07_adj).to(self.device)
-
-                # pems07_feat = self.combine_pems07_linear(
-                #     self.private_pems07_linear(self.weight_feat_private * pems07_feat) + self.shared_pems07_linear(
-                #         self.weight_feat_shared * shared_pems07_feat))
-
-                pems07_feat = self.combine_pems07_linear(
-                        self.private_pems07_linear(pems07_feat) + self.shared_pems07_linear(shared_pems07_feat))
-
-
+                pems07_feat = self.combine_pems07_linear(self.private_pems07_linear(pems07_feat) + self.shared_pems07_linear(shared_pems07_feat))
                 h_pems07 = pems07_feat.expand(self.batch_size, self.pems07_adj.shape[0], self.encode_dim)
                 pred = self.speed_predictor(feat, h_pems07)
-                # pred = self.dropout(pred)
                 pred = self.pems07_linear(pred)
-                # (batch_size, num_nodes, output_dim)
                 pred = pred.reshape((self.batch_size, self.pems07_adj.shape[0], -1))
             elif self.dataset == '8':
                 shared_pems08_feat = self.shared_pems08_featExtractor(vec_pems08, self.pems08_adj).to(self.device)
                 pems08_feat = self.pems08_featExtractor(vec_pems08, self.pems08_adj).to(self.device)
-                # pems08_feat = self.combine_pems08_linear(
-                #     self.private_pems08_linear(self.weight_feat_private * pems08_feat) + self.shared_pems08_linear(
-                #         self.weight_feat_shared * shared_pems08_feat))
-
-                pems08_feat = self.combine_pems08_linear(
-                    self.private_pems08_linear(pems08_feat) + self.shared_pems08_linear(shared_pems08_feat))
-
+                pems08_feat = self.combine_pems08_linear(self.private_pems08_linear(pems08_feat) + self.shared_pems08_linear(shared_pems08_feat))
                 h_pems08 = pems08_feat.expand(self.batch_size, self.pems08_adj.shape[0], self.encode_dim)
                 pred = self.speed_predictor(feat, h_pems08)
-                # pred = self.dropout(pred)
                 pred = self.pems08_linear(pred)
-                # (batch_size, num_nodes, output_dim)
                 pred = pred.reshape((self.batch_size, self.pems08_adj.shape[0], -1))
 
             return pred

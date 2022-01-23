@@ -1,9 +1,5 @@
-import os
-import zipfile
 import numpy as np
-import torch
-from six.moves import urllib
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 
 class MyTensorDataset(Dataset):
     def __init__(self, *tensors):
