@@ -6,9 +6,9 @@ from .funcs import get_adjacency_matrix
 
 def generate_vector(args):
     DATA_PATHS = {
-        "4": {"feat": "./../data/PEMS04/PEMS04.npz", "adj": "./../data/PEMS04/PEMS04.csv"},
-        "7": {"feat": "./../data/PEMS07/PEMS07.npz", "adj": "./../data/PEMS07/PEMS07.csv"},
-        "8": {"feat": "./../data/PEMS08/PEMS08.npz", "adj": "./../data/PEMS08/PEMS08.csv"},
+        "4": {"feat": "./data/PEMS04/PEMS04.npz", "adj": "./data/PEMS04/PEMS04.csv"},
+        "7": {"feat": "./data/PEMS07/PEMS07.npz", "adj": "./data/PEMS07/PEMS07.csv"},
+        "8": {"feat": "./data/PEMS08/PEMS08.npz", "adj": "./data/PEMS08/PEMS08.csv"},
     }
 
     if args.dataset == '4':

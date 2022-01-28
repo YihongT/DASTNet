@@ -231,7 +231,7 @@ pems07_emb_path = os.path.join('{}'.format(cur_dir), 'embeddings', 'node2vec', '
                             '{}_vecdim.pkl'.format(args.vec_dim))
 pems08_emb_path = os.path.join('{}'.format(cur_dir), 'embeddings', 'node2vec', 'pems08',
                              '{}_vecdim.pkl'.format(args.vec_dim))
-
+print(pems08_emb_path)
 if os.path.exists(pems04_emb_path):
     print(f'Loading pems04 embedding...')
     vec_pems04 = torch.load(pems04_emb_path, map_location='cpu')

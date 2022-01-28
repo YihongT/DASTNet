@@ -19,18 +19,18 @@ class StandardScaler:
 
 def load_all_adj(device):
 
-    adj_pems04 = get_adjacency_matrix(distance_df_filename="./../data/PEMS04/PEMS04.csv", num_of_vertices=307)
-    adj_pems07 = get_adjacency_matrix(distance_df_filename="./../data/PEMS07/PEMS07.csv", num_of_vertices=883)
-    adj_pems08 = get_adjacency_matrix(distance_df_filename="./../data/PEMS08/PEMS08.csv", num_of_vertices=170)
+    adj_pems04 = get_adjacency_matrix(distance_df_filename="./data/PEMS04/PEMS04.csv", num_of_vertices=307)
+    adj_pems07 = get_adjacency_matrix(distance_df_filename="./data/PEMS07/PEMS07.csv", num_of_vertices=883)
+    adj_pems08 = get_adjacency_matrix(distance_df_filename="./data/PEMS08/PEMS08.csv", num_of_vertices=170)
 
     return torch.tensor(adj_pems04).to(device), torch.tensor(adj_pems07).to(device), torch.tensor(adj_pems08).to(device)
 
 
 def load_data(args, scaler=None, visualize=False, distribution=False):
     DATA_PATHS = {
-        "4": {"feat": "./../data/PEMS04/PEMS04.npz", "adj": "./../data/PEMS04/PEMS04.csv"},
-        "7": {"feat": "./../data/PEMS07/PEMS07.npz", "adj": "./../data/PEMS07/PEMS07.csv"},
-        "8": {"feat": "./../data/PEMS08/PEMS08.npz", "adj": "./../data/PEMS08/PEMS08.csv"},
+        "4": {"feat": "./data/PEMS04/PEMS04.npz", "adj": "./data/PEMS04/PEMS04.csv"},
+        "7": {"feat": "./data/PEMS07/PEMS07.npz", "adj": "./data/PEMS07/PEMS07.csv"},
+        "8": {"feat": "./data/PEMS08/PEMS08.npz", "adj": "./data/PEMS08/PEMS08.csv"},
     }
     time = False
 
@@ -123,9 +123,9 @@ def load_distribution(feat_dir):
 
 def load_graphdata_channel1(args, feat_dir, time, scaler=None, visualize=False):
     """
-        dir: ./../data/PEMS04/PEMS04.npz, shape: (16992, 307, 3) 59 days, 2018, 1.1 - 2.28 , [flow, occupy, speed]  24%
-        dir: ./../data/PEMS07/PEMS07.npz, shape: (28224, 883, 1) 98 days, 2017, 5.1 - 8.31 , [flow]                 14%
-        dir: ./../data/PEMS08/PEMS08.npz, shape: (17856, 170, 3) 62 days, 2016, 7.1 - 8.31 , [flow, occupy, speed]  23%
+        dir: ./data/PEMS04/PEMS04.npz, shape: (16992, 307, 3) 59 days, 2018, 1.1 - 2.28 , [flow, occupy, speed]  24%
+        dir: ./data/PEMS07/PEMS07.npz, shape: (28224, 883, 1) 98 days, 2017, 5.1 - 8.31 , [flow]                 14%
+        dir: ./data/PEMS08/PEMS08.npz, shape: (17856, 170, 3) 62 days, 2016, 7.1 - 8.31 , [flow, occupy, speed]  23%
     """
     file_data = np.load(feat_dir)
     data = file_data['data']

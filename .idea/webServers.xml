@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="dd136981-39b3-45f8-b2a9-bc89d2593e27" name="2080ti">
+        <fileTransfer accessType="SFTP" host="gpu176.mistgpu.xyz" port="29001" sshConfigId="75d54692-61e5-4ae8-aa2a-abfdbd0376de" sshConfig="mist@gpu176.mistgpu.xyz:29001 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
