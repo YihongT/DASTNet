@@ -1,3 +1,4 @@
+# python==3.6
 fastdtw==0.3.4
 future==0.18.2
 gensim==3.8.1
