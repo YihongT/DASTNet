@@ -23,7 +23,7 @@ This is an implementation of [Domain Adversarial Spatial-Temporal Network: A Tra
 
 - PeMS04
 - PeMS07
-- Pems08
+- PeMS08
 
 Please refer to [STSGCN (AAAI2020)](https://github.com/Davidham3/STSGCN).
 
