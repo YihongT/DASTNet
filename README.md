@@ -29,7 +29,7 @@ Please refer to [STSGCN (AAAI2020)](https://github.com/Davidham3/STSGCN).
 
 ## Model
 
-![](C:\Users\25839\Desktop\DASTNet\Figures\model.jpg)
+<img src="Figures\model.jpg" style="zoom:80%;" />
 
 ## Requirements
 
