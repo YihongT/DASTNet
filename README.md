@@ -19,6 +19,15 @@ This is an implementation of [Domain Adversarial Spatial-Temporal Network: A Tra
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/domain-adversarial-spatial-temporal-network-a/traffic-prediction-on-pemsd8-10-days-training-2)](https://paperswithcode.com/sota/traffic-prediction-on-pemsd8-10-days-training-2?p=domain-adversarial-spatial-temporal-network-a)
 
+## Requirements
+
+- python == 3.6
+- torch == 1.7.0+cu110
+- networkx == 2.4
+- gensim == 3.8.1
+
+See [requirements.txt](https://github.com/YihongT/DASTNet/blob/master/requirements.txt) for more details.
+
 ## Dataset
 
 - PeMS04
@@ -30,15 +39,6 @@ Please refer to [STSGCN (AAAI2020)](https://github.com/Davidham3/STSGCN).
 ## Model
 
 <img src="Figures\model.jpg" style="zoom:80%;" />
-
-## Requirements
-
-- python == 3.6
-- torch == 1.7.0+cu110
-- networkx == 2.4
-- gensim == 3.8.1
-
-See [requirements.txt](https://github.com/YihongT/DASTNet/blob/master/requirements.txt) for more details.
 
 ## Run
 ```
