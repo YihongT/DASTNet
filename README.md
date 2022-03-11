@@ -27,6 +27,10 @@ This is an implementation of [Domain Adversarial Spatial-Temporal Network: A Tra
 
 Please refer to [STSGCN (AAAI2020)](https://github.com/Davidham3/STSGCN).
 
+## Model
+
+![](C:\Users\25839\Desktop\DASTNet\Figures\model.jpg)
+
 ## Requirements
 
 - python == 3.6
