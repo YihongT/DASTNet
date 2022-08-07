@@ -1,5 +1,5 @@
 # DASTNet
-This is an implementation of [Domain Adversarial Spatial-Temporal Network: A Transferable Framework for Short-term Traffic Forecasting across Cities](https://arxiv.org/abs/2202.03630) , Accepted by CIKM 2022
+**CIKM 2022**: [Domain Adversarial Spatial-Temporal Network: A Transferable Framework for Short-term Traffic Forecasting across Cities](https://arxiv.org/abs/2202.03630) 
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/domain-adversarial-spatial-temporal-network-a/traffic-prediction-on-pemsd4-10-days-training)](https://paperswithcode.com/sota/traffic-prediction-on-pemsd4-10-days-training?p=domain-adversarial-spatial-temporal-network-a)
 
