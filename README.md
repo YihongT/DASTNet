@@ -49,10 +49,11 @@ python main.py
 
 Please cite our paper if you use the model in your own work:
 ```
-@article{tang2022domain,
-  title={Domain Adversarial Spatial-Temporal Network: A Transferable Framework for Short-term Traffic Forecasting across Cities},
+@inproceedings{tang2022domain,
+  title={Domain adversarial spatial-temporal network: A transferable framework for short-term traffic forecasting across cities},
   author={Tang, Yihong and Qu, Ao and Chow, Andy HF and Lam, William HK and Wong, SC and Ma, Wei},
-  journal={arXiv preprint arXiv:2202.03630},
+  booktitle={Proceedings of the 31st ACM International Conference on Information \& Knowledge Management},
+  pages={1905--1915},
   year={2022}
 }
 ```
